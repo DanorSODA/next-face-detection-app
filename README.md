@@ -41,6 +41,22 @@ yarn dev
 
 4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
+### Using Docker
+
+1. Build the Docker image:
+
+```bash
+docker build -t face-detection-app .
+```
+
+2. Run the container:
+
+```bash
+docker run -p 3000:3000 face-detection-app
+```
+
+3. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+
 ## Project Structure
 
 ```tree
@@ -55,6 +71,7 @@ yarn dev
 │   └── globals.css              # Global styles
 ├── public/
 │   └── models/                  # face-api.js model files
+├── Dockerfile                   # Docker configuration
 └── package.json                 # Project dependencies
 ```
 
