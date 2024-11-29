@@ -1,95 +1,117 @@
-import Image from "next/image";
+"use client";
+
+import React, { useEffect, useRef, useState } from "react";
+import * as faceapi from "face-api.js";
 import styles from "./page.module.css";
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>src/app/page.tsx</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const canvasRef = useRef<HTMLCanvasElement | null>(null);
+  const [isClient, setIsClient] = useState(false);
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
-        </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+  useEffect(() => {
+    // Set isClient to true after the component is mounted
+    setIsClient(true);
+  }, []);
+
+  useEffect(() => {
+    if (!isClient) return;
+
+    const startVideo = async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: {} });
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+        }
+      } catch (error) {
+        console.error("Error accessing webcam: ", error);
+      }
+    };
+
+    const loadModels = async () => {
+      const MODEL_URL = "/models";
+      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+    };
+
+    const detectFaces = async () => {
+      if (!videoRef.current || !canvasRef.current) return;
+
+      const video = videoRef.current;
+      const canvas = canvasRef.current;
+
+      // Ensure video metadata is loaded before setting dimensions
+      if (video.readyState !== 4) {
+        video.addEventListener("loadedmetadata", () => {
+          initializeCanvasAndDetection(video, canvas);
+        });
+      } else {
+        initializeCanvasAndDetection(video, canvas);
+      }
+    };
+
+    const initializeCanvasAndDetection = (
+      video: HTMLVideoElement,
+      canvas: HTMLCanvasElement
+    ) => {
+      const displaySize = {
+        width: video.videoWidth,
+        height: video.videoHeight,
+      };
+
+      // Set canvas dimensions to match video dimensions
+      canvas.width = displaySize.width;
+      canvas.height = displaySize.height;
+
+      faceapi.matchDimensions(canvas, displaySize);
+
+      setInterval(async () => {
+        if (video.readyState === 4) {
+          const detections = await faceapi
+            .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
+            .withFaceLandmarks()
+            .withFaceExpressions();
+
+          const resizedDetections = faceapi.resizeResults(
+            detections,
+            displaySize
+          );
+
+          // Clear the canvas before drawing new detections
+          const context = canvas.getContext("2d");
+          if (context) {
+            context.clearRect(0, 0, canvas.width, canvas.height);
+            faceapi.draw.drawDetections(canvas, resizedDetections);
+            faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+            faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
+          }
+        }
+      }, 100);
+    };
+
+    const setup = async () => {
+      await loadModels();
+      await startVideo();
+      detectFaces();
+    };
+
+    setup();
+  }, [isClient]);
+
+  if (!isClient) {
+    // Optionally render a loading state or empty div during SSR
+    return <div>Loading...</div>;
+  }
+
+  return (
+    <div className={styles.container}>
+      <h1 className={styles.title}>AI Face Detection</h1>
+      <div className={styles.videoWrapper}>
+        <video ref={videoRef} autoPlay muted className={styles.video} />
+        <canvas ref={canvasRef} className={styles.canvas} />
+      </div>
     </div>
   );
 }

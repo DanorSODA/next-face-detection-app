@@ -1,36 +1,70 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Face Detection
 
-## Getting Started
+A real-time face detection application built with Next.js and face-api.js.
+This application uses your webcam to detect faces, facial landmarks, and expressions in real-time.
 
-First, run the development server:
+## Features
+
+- Real-time face detection
+- Facial landmark recognition
+- Expression analysis
+- Webcam integration
+- Responsive design
+
+## Prerequisites
+
+Before you begin, ensure you have installed:
+
+- Node.js (version 16.x or higher)
+- Yarn package manager
+
+## Installation
+
+1. Clone the repository:
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/DanorSODA/next-face-detection-app
+cd next-face-detection-app
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+yarn install
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+3. Start the development server:
 
-## Learn More
+```bash
+yarn dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Project Structure
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```tree
+├── app/
+│   ├── fonts/
+│   │   ├── GeistVF.woff         # Geist Sans font
+│   │   └── GeistMonoVF.woff     # Geist Mono font
+│   ├── models/                   # Face detection models
+│   ├── page.tsx                 # Main application component
+│   ├── page.module.css          # Styles for main component
+│   ├── layout.tsx               # Root layout component
+│   └── globals.css              # Global styles
+├── public/
+│   └── models/                  # face-api.js model files
+└── package.json                 # Project dependencies
+```
 
-## Deploy on Vercel
+### Essential Files
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- [`app/page.tsx`](src/app/page.tsx) - Main application logic and webcam integration
+- [`app/page.module.css`](src/app/page.module.css) - Styling for the face detection interface
+- [`app/layout.tsx`](src/app/layout.tsx) - Root layout with font configuration
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## Technologies Used
+
+- [Next.js](https://nextjs.org) - React framework
+- [face-api.js](https://github.com/justadudewhohacks/face-api.js) - JavaScript face detection library
