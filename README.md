@@ -6,8 +6,9 @@ This application uses your webcam to detect faces, facial landmarks, and express
 ## Features
 
 - Real-time face detection
-- Facial landmark recognition
+- Facial landmark recognition with colored points
 - Expression analysis
+- Age and gender prediction
 - Webcam integration
 - Responsive design
 
@@ -17,6 +18,7 @@ Before you begin, ensure you have installed:
 
 - Node.js (version 16.x or higher)
 - Yarn package manager
+- Docker and Docker Compose (for containerized deployment)
 
 ## Installation
 
@@ -41,21 +43,21 @@ yarn dev
 
 4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
-### Using Docker
+### Using Docker Compose
 
-1. Build the Docker image:
-
-```bash
-docker build -t face-detection-app .
-```
-
-2. Run the container:
+1. Build and start the container:
 
 ```bash
-docker run -p 3000:3000 face-detection-app
+docker-compose up --build
 ```
 
-3. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
+2. To stop the container:
+
+```bash
+docker-compose down
+```
+
+4. Open [http://localhost:3000](http://localhost:3000) with your browser to see the application.
 
 ## Project Structure
 
@@ -64,7 +66,6 @@ docker run -p 3000:3000 face-detection-app
 │   ├── fonts/
 │   │   ├── GeistVF.woff         # Geist Sans font
 │   │   └── GeistMonoVF.woff     # Geist Mono font
-│   ├── models/                   # Face detection models
 │   ├── page.tsx                 # Main application component
 │   ├── page.module.css          # Styles for main component
 │   ├── layout.tsx               # Root layout component
@@ -72,6 +73,7 @@ docker run -p 3000:3000 face-detection-app
 ├── public/
 │   └── models/                  # face-api.js model files
 ├── Dockerfile                   # Docker configuration
+├── docker-compose.yml           # Docker Compose configuration
 └── package.json                 # Project dependencies
 ```
 

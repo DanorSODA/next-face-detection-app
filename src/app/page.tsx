@@ -34,6 +34,7 @@ export default function Home() {
       await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
       await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
       await faceapi.nets.faceExpressionNet.loadFromUri(MODEL_URL);
+      await faceapi.nets.ageGenderNet.loadFromUri(MODEL_URL);
     };
 
     const detectFaces = async () => {
@@ -61,30 +62,76 @@ export default function Home() {
         height: video.videoHeight,
       };
 
-      // Set canvas dimensions to match video dimensions
       canvas.width = displaySize.width;
       canvas.height = displaySize.height;
 
       faceapi.matchDimensions(canvas, displaySize);
+
+      // Define colors for different landmark groups
+      const landmarkColors = {
+        jaw: "yellow",
+        nose: "pink",
+        mouth: "red",
+        leftEye: "blue",
+        rightEye: "blue",
+        leftEyeBrow: "purple",
+        rightEyeBrow: "purple",
+      };
 
       setInterval(async () => {
         if (video.readyState === 4) {
           const detections = await faceapi
             .detectAllFaces(video, new faceapi.TinyFaceDetectorOptions())
             .withFaceLandmarks()
-            .withFaceExpressions();
+            .withFaceExpressions()
+            .withAgeAndGender();
 
           const resizedDetections = faceapi.resizeResults(
             detections,
             displaySize
           );
 
-          // Clear the canvas before drawing new detections
           const context = canvas.getContext("2d");
           if (context) {
             context.clearRect(0, 0, canvas.width, canvas.height);
-            faceapi.draw.drawDetections(canvas, resizedDetections);
-            faceapi.draw.drawFaceLandmarks(canvas, resizedDetections);
+
+            // Custom drawing for face detections with green boxes
+            resizedDetections.forEach((detection) => {
+              const box = detection.detection.box;
+              const drawBox = new faceapi.draw.DrawBox(box, {
+                boxColor: "green",
+                label: `Age: ${Math.round(detection.age)} Gender: ${
+                  detection.gender
+                }`,
+                lineWidth: 2,
+              });
+              drawBox.draw(canvas);
+            });
+
+            // Custom drawing for landmarks with different colors
+            resizedDetections.forEach((detection) => {
+              const landmarks = detection.landmarks;
+              const points = landmarks.positions;
+
+              // Draw each landmark point
+              points.forEach((point, index) => {
+                const color = (() => {
+                  if (index <= 16) return landmarkColors.jaw;
+                  if (index <= 21) return landmarkColors.leftEyeBrow;
+                  if (index <= 26) return landmarkColors.rightEyeBrow;
+                  if (index <= 35) return landmarkColors.nose;
+                  if (index <= 41) return landmarkColors.leftEye;
+                  if (index <= 47) return landmarkColors.rightEye;
+                  return landmarkColors.mouth;
+                })();
+
+                context.beginPath();
+                context.arc(point.x, point.y, 2, 0, 2 * Math.PI);
+                context.fillStyle = color;
+                context.fill();
+              });
+            });
+
             faceapi.draw.drawFaceExpressions(canvas, resizedDetections);
           }
         }

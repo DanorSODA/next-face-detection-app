@@ -1,0 +1,27 @@
+# Docker Compose configuration file version
+version: "2"
+
+# Define the services/containers to be run
+services:
+  # Service name for our Next.js web application
+  web:
+    # Build the image using the Dockerfile in the current directory
+    build: .
+
+    # Port mapping - maps host port 3000 to container port 3000
+    # Format: "HOST_PORT:CONTAINER_PORT"
+    ports:
+      - "3000:3000"
+
+    # Volume mounting - maps the host's public directory to container's public directory
+    # This ensures model files are accessible and changes are reflected immediately
+    volumes:
+      - ./public:/app/public
+
+    # Environment variables passed to the container
+    environment:
+      - NODE_ENV=production
+
+    # Restart policy - container will restart unless manually stopped
+    # Options: no, always, on-failure, unless-stopped
+    restart: unless-stopped
