@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import React, { useEffect, useRef, useState } from "react";
-import * as faceapi from "face-api.js";
-import styles from "./page.module.css";
+import React, { useEffect, useRef, useState } from 'react';
+import * as faceapi from 'face-api.js';
+import styles from './page.module.css';
 
 export default function Home() {
   const videoRef = useRef<HTMLVideoElement | null>(null);
@@ -24,12 +24,12 @@ export default function Home() {
           videoRef.current.srcObject = stream;
         }
       } catch (error) {
-        console.error("Error accessing webcam: ", error);
+        console.error('Error accessing webcam: ', error);
       }
     };
 
     const loadModels = async () => {
-      const MODEL_URL = "/models";
+      const MODEL_URL = '/models';
       await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
       await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
       await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
@@ -45,7 +45,7 @@ export default function Home() {
 
       // Ensure video metadata is loaded before setting dimensions
       if (video.readyState !== 4) {
-        video.addEventListener("loadedmetadata", () => {
+        video.addEventListener('loadedmetadata', () => {
           initializeCanvasAndDetection(video, canvas);
         });
       } else {
@@ -69,13 +69,13 @@ export default function Home() {
 
       // Define colors for different landmark groups
       const landmarkColors = {
-        jaw: "yellow",
-        nose: "pink",
-        mouth: "red",
-        leftEye: "blue",
-        rightEye: "blue",
-        leftEyeBrow: "purple",
-        rightEyeBrow: "purple",
+        jaw: 'yellow',
+        nose: 'pink',
+        mouth: 'red',
+        leftEye: 'blue',
+        rightEye: 'blue',
+        leftEyeBrow: 'purple',
+        rightEyeBrow: 'purple',
       };
 
       setInterval(async () => {
@@ -91,7 +91,7 @@ export default function Home() {
             displaySize
           );
 
-          const context = canvas.getContext("2d");
+          const context = canvas.getContext('2d');
           if (context) {
             context.clearRect(0, 0, canvas.width, canvas.height);
 
@@ -99,7 +99,7 @@ export default function Home() {
             resizedDetections.forEach((detection) => {
               const box = detection.detection.box;
               const drawBox = new faceapi.draw.DrawBox(box, {
-                boxColor: "green",
+                boxColor: 'green',
                 label: `Age: ${Math.round(detection.age)} Gender: ${
                   detection.gender
                 }`,

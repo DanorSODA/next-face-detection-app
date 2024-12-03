@@ -1,3 +1,21 @@
 {
-  "extends": ["next/core-web-vitals", "next/typescript"]
+  "extends": [
+    "next/core-web-vitals",
+    "next/typescript",
+    "plugin:@typescript-eslint/recommended"
+  ],
+  "plugins": ["spellcheck", "@typescript-eslint"],
+  "parser": "@typescript-eslint/parser",
+  "rules": {
+    "spellcheck/spell-checker": [
+      "warn",
+      {
+        "comments": true,
+        "strings": true,
+        "identifiers": true,
+        "templates": true,
+        "skipWords": ["tsx", "jsx", "prev", "props", "href"]
+      }
+    ]
+  }
 }
