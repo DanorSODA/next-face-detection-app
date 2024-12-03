@@ -1,4 +1,4 @@
-# AI Face Detection Next.JS App
+# AI Face Detection
 
 A real-time face detection application built with Next.js and face-api.js.
 This application uses your webcam to detect faces, facial landmarks, and expressions in real-time.
