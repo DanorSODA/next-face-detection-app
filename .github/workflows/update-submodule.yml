@@ -1,0 +1,42 @@
+# Workflow name: Update Submodule
+# Purpose: Automatically updates the submodule in the deployment repository when changes are pushed to this repository's main branch
+# Repository: This workflow runs in the app repository (next-face-detection-app) and updates the Devops-Course-Final-Project repository
+
+name: Update Submodule
+
+# Trigger conditions
+on:
+  push:
+    branches:
+      - main # Only trigger on pushes to main branch
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      # Step 1: Checkout the current repository (app repository)
+      - name: Checkout app repository
+        uses: actions/checkout@v3
+
+      # Step 2: Checkout the deployment repository that contains this repo as a submodule
+      # Note: Requires PAT (Personal Access Token) with repo permissions stored in repository secrets
+      - name: Checkout deployment repository
+        uses: actions/checkout@v3
+        with:
+          repository: DanorSODA/Devops-Course-Final-Project # Target repository to update
+          token: ${{ env.TOKEN }} # Use PAT for authentication
+          path: Devops-Course-Final-Project # Local path where the repo will be checked out
+        env:
+          TOKEN: ${{ secrets.PAT }} # Reference to the PAT stored in secrets
+
+      # Step 3: Update the submodule in the deployment repository
+      - name: Update submodule
+        run: |
+          cd Devops-Course-Final-Project  # Navigate to deployment repo
+          git config user.name "GitHub Actions"  # Set Git user for the commit
+          git config user.email "actions@github.com"
+          git submodule update --init --recursive  # Initialize submodules
+          git submodule update --remote --merge    # Update submodules to latest
+          git add .  # Stage changes
+          git commit -m "Update next-face-detection-app submodule to latest main" || echo "No changes to commit"  # Commit changes
+          git push  # Push changes back to deployment repository
