@@ -14,14 +14,16 @@ jobs:
   update:
     runs-on: ubuntu-latest
     steps:
-      # Step 1: Checkout the current repository (app repository)
-      - name: Checkout app repository
-        uses: actions/checkout@v3
-
-      # Step 2: Configure git to use HTTPS instead of SSH
+      # Step 1: Configure Git globally
       - name: Configure Git
         run: |
+          git config --global user.name "GitHub Actions"
+          git config --global user.email "actions@github.com"
           git config --global url."https://github.com/".insteadOf "git@github.com:"
+
+      # Step 2: Checkout the current repository (app repository)
+      - name: Checkout app repository
+        uses: actions/checkout@v3
 
       # Step 3: Checkout the deployment repository that contains this repo as a submodule
       # Note: Requires PAT (Personal Access Token) with repo permissions stored in repository secrets
@@ -36,10 +38,6 @@ jobs:
       - name: Update submodule
         run: |
           cd Devops-Course-Final-Project  # Navigate to deployment repo
-          git config user.name "GitHub Actions"  # Set Git user for the commit
-          git config user.email "actions@github.com"
-
-          # Convert submodule URL from SSH to HTTPS
           git config --file=.gitmodules submodule.next-face-detection-app.url https://github.com/DanorSODA/next-face-detection-app.git
           git submodule sync
 
