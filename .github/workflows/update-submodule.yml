@@ -36,6 +36,8 @@ jobs:
 
       # Step 4: Update the submodule in the deployment repository
       - name: Update submodule
+        env:
+          TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           cd Devops-Course-Final-Project  # Navigate to deployment repo
           git config --file=.gitmodules submodule.next-face-detection-app.url https://github.com/DanorSODA/next-face-detection-app.git
@@ -44,6 +46,9 @@ jobs:
           # Update submodules
           git submodule update --init --recursive
           git submodule update --remote --merge
+
+          # Configure remote URL with token
+          git remote set-url origin https://x-access-token:${TOKEN}@github.com/DanorSODA/Devops-Course-Final-Project.git
 
           # Commit and push changes
           git add .
