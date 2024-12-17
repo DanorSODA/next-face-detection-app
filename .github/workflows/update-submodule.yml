@@ -48,10 +48,9 @@ jobs:
           git submodule update --init --recursive
           git submodule update --remote --merge
 
-          # Set the remote URL with authentication
-          git remote set-url origin "https://${GITHUB_TOKEN}@github.com/DanorSODA/Devops-Course-Final-Project.git"
-
-          # Commit and push changes
+          # Commit changes
           git add .
           git commit -m "Update next-face-detection-app submodule to latest main" || echo "No changes to commit"
-          git push origin main
+
+          # Push using token in the URL
+          git push "https://${GITHUB_TOKEN}@github.com/DanorSODA/Devops-Course-Final-Project.git" main
