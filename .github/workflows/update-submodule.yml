@@ -4,7 +4,6 @@
 
 name: Update Submodule
 
-# Trigger conditions
 on:
   push:
     branches:
@@ -26,31 +25,33 @@ jobs:
         uses: actions/checkout@v3
 
       # Step 3: Checkout the deployment repository that contains this repo as a submodule
-      # Note: Requires PAT (Personal Access Token) with repo permissions stored in repository secrets
       - name: Checkout deployment repository
         uses: actions/checkout@v3
         with:
-          repository: DanorSODA/Devops-Course-Final-Project # Target repository to update
-          token: ${{ secrets.PAT_TOKEN }} # Use PAT for authentication
-          path: Devops-Course-Final-Project # Local path where the repo will be checked out
+          repository: DanorSODA/Devops-Course-Final-Project
+          token: ${{ secrets.PAT_TOKEN }}
+          path: Devops-Course-Final-Project
+          persist-credentials: false
 
       # Step 4: Update the submodule in the deployment repository
       - name: Update submodule
         env:
-          TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
-          cd Devops-Course-Final-Project  # Navigate to deployment repo
-          git config --file=.gitmodules submodule.next-face-detection-app.url https://github.com/DanorSODA/next-face-detection-app.git
+          cd Devops-Course-Final-Project
+
+          # Convert submodule URL from SSH to HTTPS and include token
+          git config --file=.gitmodules submodule.next-face-detection-app.url "https://${GITHUB_TOKEN}@github.com/DanorSODA/next-face-detection-app.git"
           git submodule sync
 
           # Update submodules
           git submodule update --init --recursive
           git submodule update --remote --merge
 
-          # Configure remote URL with token
-          git remote set-url origin https://x-access-token:${TOKEN}@github.com/DanorSODA/Devops-Course-Final-Project.git
+          # Set the remote URL with authentication
+          git remote set-url origin "https://${GITHUB_TOKEN}@github.com/DanorSODA/Devops-Course-Final-Project.git"
 
           # Commit and push changes
           git add .
           git commit -m "Update next-face-detection-app submodule to latest main" || echo "No changes to commit"
-          git push
+          git push origin main
