@@ -18,7 +18,12 @@ jobs:
       - name: Checkout app repository
         uses: actions/checkout@v3
 
-      # Step 2: Checkout the deployment repository that contains this repo as a submodule
+      # Step 2: Configure git to use HTTPS instead of SSH
+      - name: Configure Git
+        run: |
+          git config --global url."https://github.com/".insteadOf "git@github.com:"
+
+      # Step 3: Checkout the deployment repository that contains this repo as a submodule
       # Note: Requires PAT (Personal Access Token) with repo permissions stored in repository secrets
       - name: Checkout deployment repository
         uses: actions/checkout@v3
@@ -27,19 +32,22 @@ jobs:
           token: ${{ secrets.PAT_TOKEN }} # Use PAT for authentication
           path: Devops-Course-Final-Project # Local path where the repo will be checked out
 
-      # Step 3: Update the submodule in the deployment repository
+      # Step 4: Update the submodule in the deployment repository
       - name: Update submodule
         run: |
           cd Devops-Course-Final-Project  # Navigate to deployment repo
           git config user.name "GitHub Actions"  # Set Git user for the commit
           git config user.email "actions@github.com"
-          git submodule update --init --recursive  # Initialize submodules
-          git submodule update --remote --merge    # Update submodules to latest
-          git add .  # Stage changes
-          git commit -m "Update next-face-detection-app submodule to latest main" || echo "No changes to commit"  # Commit changes
-          git push  # Push changes back to deployment repository
 
-# Prerequisites:
-# 1. PAT (Personal Access Token) with repo scope must be added to repository secrets as 'PAT_TOKEN'
-# 2. The deployment repository must have this repository properly configured as a submodule
-# 3. The PAT must have write permissions to the deployment repository
+          # Convert submodule URL from SSH to HTTPS
+          git config --file=.gitmodules submodule.next-face-detection-app.url https://github.com/DanorSODA/next-face-detection-app.git
+          git submodule sync
+
+          # Update submodules
+          git submodule update --init --recursive
+          git submodule update --remote --merge
+
+          # Commit and push changes
+          git add .
+          git commit -m "Update next-face-detection-app submodule to latest main" || echo "No changes to commit"
+          git push
