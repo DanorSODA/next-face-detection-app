@@ -24,10 +24,8 @@ jobs:
         uses: actions/checkout@v3
         with:
           repository: DanorSODA/Devops-Course-Final-Project # Target repository to update
-          token: ${{ env.TOKEN }} # Use PAT for authentication
+          token: ${{ secrets.PAT_TOKEN }} # Use PAT for authentication
           path: Devops-Course-Final-Project # Local path where the repo will be checked out
-        env:
-          TOKEN: ${{ secrets.PAT }} # Reference to the PAT stored in secrets
 
       # Step 3: Update the submodule in the deployment repository
       - name: Update submodule
@@ -40,3 +38,8 @@ jobs:
           git add .  # Stage changes
           git commit -m "Update next-face-detection-app submodule to latest main" || echo "No changes to commit"  # Commit changes
           git push  # Push changes back to deployment repository
+
+# Prerequisites:
+# 1. PAT (Personal Access Token) with repo scope must be added to repository secrets as 'PAT_TOKEN'
+# 2. The deployment repository must have this repository properly configured as a submodule
+# 3. The PAT must have write permissions to the deployment repository
